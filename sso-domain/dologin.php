@@ -8,7 +8,8 @@ if (!$url) {
     exit();
 }
 if ($username == 'demo' && $passwd == 'demo') {
-    //全局会话
+    //SSO域(全局)会话
+    /* CAS: TGT ==> $session_value, TGC ==> $session_id */
     $session_id = substr(md5(rand().$username.time()), 0, 10);
     $session_value = $username.'~'.time();
     $redis = new Redis();
@@ -19,15 +20,15 @@ if ($username == 'demo' && $passwd == 'demo') {
     $redis->expireAt($session_id, time() + 600);
 
     //创建ticket
+    /* CAS: ST(Service Ticket) */
     $ticket = 'st00'.'.'.substr(md5(time().$username), 0, 8).'.'.substr(sha1(rand(1000,9999).$username), 0, 16);
     $redis->auth('admin');
     $redis->select(1);
     $redis->set($ticket, $username);
     $redis->expireAt($ticket, time() + 60);
 
-    //sso域下的session cookie
-    //setcookie('user_id', $username, $cookie_expire, $cookie_path, $cookie_domain);
-    //setcookie('sso_token', $token, $cookie_expire, $cookie_path, $cookie_domain);
+    //SSO域(全局)下的session cookie
+    /* CAS: session cookie name:sso_cookie, session cookie value:TGC($session_id)*/
     $cookie_expire = time()+3600;
     $cookie_path = '/';
     $cookie_domain = 'sso.com';

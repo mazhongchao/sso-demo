@@ -29,7 +29,7 @@ if($ticket){
         //设置a-app-domain的局部会话
         session_id();
         session_start();
-        $_SESSION['user_name'] = $ret['user'];
+        $_SESSION['user_name'] = $ret['user_name'];
         header('Location: http://www.a.com/a-page.php');
         exit();
     }
@@ -39,25 +39,29 @@ if($ticket){
     }
 }
 else {
+    //对于PHP默认的session实现方式，session名(即session_name()的返回值)为PHPSESSID。
     $session_id = $_COOKIE[session_name()] ?? '';
-    if ($session_id) {
-        session_id($session_id);
-        session_start();
-        if (!$_SESSION['user_name']) {
-            session_destroy();
-            $_SESSION = [];
-            setcookie(session_name(), '', -1, '/');
-            header('Location: http://www.sso.com/index.php?url='.$url);
-            exit();
-        }
-    }
-    else {
+    if (!$session_id) {
         header('Location: http://www.sso.com/index.php?url='.$url);
         exit();
     }
+    // if ($session_id) {
+    //     session_id($session_id);
+    //     session_start();
+    //     if (!$_SESSION['user_name']) {
+    //         $_SESSION = [];
+    //         setcookie(session_name(), '', -1, '/');
+    //         header('Location: http://www.sso.com/index.php?url='.$url);
+    //         exit();
+    //     }
+    // }
+    // else {
+    //     header('Location: http://www.sso.com/index.php?url='.$url);
+    //     exit();
+    // }
 }
-
-echo 'login a.com success!<br/>';
-echo 'login user: '.$_SESSION['user_name'].'<br/><br/>';
-echo '<a href="http://www.sso.com/logout.php?ticket='.$sso_ticket.'">退出</a>';
+echo 'Login a.com success!<br/>';
+echo 'Login user: '.$_SESSION['user_name'].'<br/><br/>';
+echo '<a href="http://www.sso.com/logout.php>退出</a>';
+exit();
 
