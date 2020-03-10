@@ -1,5 +1,5 @@
 <?php
-//如果sso域下没有全局session，跳转到登录页面
+//如果SSO域(全局)下没有session，显示登录页面
 
 /* ===CAS===
  * service(service url)
