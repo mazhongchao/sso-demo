@@ -1,38 +1,4 @@
-
 <?php
-if (!function_exists('gen_ticket')) {
-    /**
-     * Generate a sevice ticket
-     *
-     * @return string The service ticket.
-     */
-    function gen_ticket(){
-        //
-    }
-}
-
-if (!function_exists('session_create')) {
-    /**
-     * Generate a sevice ticket
-     *
-     * @return string The service ticket.
-     */
-    function session_create(){
-        //
-    }
-}
-
-if (!function_exists('session_')) {
-    /**
-     * Generate a sevice ticket
-     *
-     * @return string The service ticket.
-     */
-    function session_create(){
-        //
-    }
-}
-
 if (!function_exists('getallheaders')) {
     /**
      * Get all HTTP header key/values as an associative array for the current request.
