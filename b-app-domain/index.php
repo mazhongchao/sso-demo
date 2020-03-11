@@ -1,64 +1,67 @@
 <?php
-$is_login = false;
-$url = urlencode('http://www.b.com/b-page.php');
+$service_url = 'http://www.b.com/index.php';
 
-$token = isset($_GET['token']) ? $_GET['token'] : '';
-if($token){
-    $session_id = hash('sha256','SSO'.$token.'yI0v/49Sr9Pg');
-    $auth_url = 'http://www.sso.com/auth.php';
-    $data = ['token'=>$token];
-    $ch = curl_init($auth_url);
+/**
+ * ===CAS===
+ * ST(Service Ticket)
+**/
+$ticket = $_GET['ticket'] ?? '';
+
+/**
+ * ===CAS===
+ * Verifying ST at sso-domain(CAS Server).
+ * Actually, HTTPS should be used when validating ST at server.
+**/
+if($ticket){
+    $verify_url = 'http://www.sso.com/verify.php';
+    $ch = curl_init($verify_url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
-    curl_setopt($ch, CURLOPT_HTTPHEADER, ['Accept: application/json', 'Authorization: Bearer '. $session_id]);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, ['Accept: application/json', 'Authorization: Bearer '. $ticket]);
 
-    $post = is_string($data) ? $data : http_build_query($data);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
+    //POST
+    // $post_data = ['ticket'=>$ticket];
+    // curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($post_data));
 
-    //echo "session_id = ".$session_id."<br/>";
+    //GET
+    // curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    // curl_setopt($ch, CURLOPT_TIMEOUT, 500);
+    // curl_setopt($ch, CURLOPT_URL, $verify_url.'?ticket='.$ticket);
+
     $response = curl_exec($ch);
+
     if (curl_errno($ch)) {
-        echo curl_error($ch);
+        echo "CURL ERROR: ".curl_error($ch);
         curl_close($ch);
         exit();
-        return;
     }
-    $ret = json_decode($response, true);
-    //echo 'response='.$response;
     curl_close($ch);
-    if ($ret['is_login']) {
-        //设置局部会话
-        session_start();
 
-        $_SESSION['user'] = $ret['user'];
-        $_SESSION['sso_token'] = $ret['token'];
-        setcookie('user', $ret['user'], time()+3600, '/', 'b.com');
-        setcookie('sso_token', $ret['token'], time()+3600, '/', 'b.com');
-
-        $is_login = true;
+    $ret = json_decode($response, true);
+    if ($ret['ticket_verify'] != true) {
+        header('Location: http://www.sso.com/login.php?service='.urlencode($service_url));
+        exit();
     }
-    else {
-        header('Location: http://www.sso.com/index.php?url='.$url);
-        return;
-    }
+    //设置登录a-app-domain的局部会话
+    session_start();
+    $_SESSION['a_domain_session'] = $ret['user_name'];
+    header('Location: http://www.b.com/index.php');
+    exit();
 }
 else {
-    session_start();
-    // if (!$_SESSION['sso_token']) {
-    //     header('Location: http://www.sso.com/index.php?url='.$url);
-    //     return;
-    // }
-    /* Or: */
-    if (!$_COOKIE['user']){
-        header('Location: http://www.sso.com/index.php?url='.$url);
-        return;
+    //对于PHP默认的session实现方式，session名(即session_name()的返回值)为PHPSESSID。
+    $session_id = $_COOKIE[session_name()] ?? '';
+    if (!$session_id) {
+        header('Location: http://www.sso.com/login.php?service='.urlencode($service_url));
+        exit();
     }
-    else {
-        $is_login = true;
-    }
+    echo session_name().'  '.$session_id;
 }
-if ($is_login) {
-    echo 'login success!<br/>';
-    echo 'page 1 in b.com<br/>';
-    echo 'login user:'.$_SESSION['user'].'<br/>';
-}
+echo '<pre>';
+echo 'Login b.com success!<br/><br/>';
+echo '$_SESSION:<br/>';
+print_r($_SESSION);
+echo '<br/>$_COOKIE:<br/>';
+print_r($_COOKIE);
+echo "<a href=\"http://www.b.com/logout.php\">退出</a>";
+

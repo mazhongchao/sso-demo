@@ -37,7 +37,7 @@ $redis->expireAt($ticket, time() + 60);
  * session cookie name: sso_cookie
  * session cookie value: TGC($session_id)
  */
-$cookie_expire = time()+3600;
+$cookie_expire = time() + 600;
 $cookie_path = '/';
 $cookie_domain = 'sso.com';
 setcookie('sso_cookie', $session_id, $cookie_expire, $cookie_path, $cookie_domain);

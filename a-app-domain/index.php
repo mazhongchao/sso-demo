@@ -1,5 +1,5 @@
 <?php
-$service_url = 'http://www.a.com/a-page.php';
+$service_url = 'http://www.a.com/index.php';
 
 /**
  * ===CAS===
@@ -45,7 +45,7 @@ if($ticket){
     //设置登录a-app-domain的局部会话
     session_start();
     $_SESSION['a_domain_session'] = $ret['user_name'];
-    header('Location: http://www.a.com/a-page.php');
+    header('Location: http://www.a.com/index.php');
     exit();
 }
 else {
@@ -63,5 +63,5 @@ echo '$_SESSION:<br/>';
 print_r($_SESSION);
 echo '<br/>$_COOKIE:<br/>';
 print_r($_COOKIE);
-echo "<a href=\"http://www.sso.com/logout.php?service={$service_url}\">退出</a>";
+echo "<a href=\"http://www.a.com/logout.php\">退出</a>";
 
