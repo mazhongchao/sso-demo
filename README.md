@@ -1,2 +1,2 @@
-This is an SSO demo written within PHP, referencing CAS.
+This is an SSO demo written in PHP, referring CAS.
 
